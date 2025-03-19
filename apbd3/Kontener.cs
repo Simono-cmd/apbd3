@@ -137,7 +137,7 @@ class KontenerG : Kontener, IHazardNotifier
     
     public override string ToString()
     {
-        return $"{base.ToString()}, Ciśnienie: {Cisnienie}";
+        return $"{base.ToString()}, Ciśnienie: {Cisnienie} atm";
     }
 }
 
