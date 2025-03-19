@@ -125,12 +125,11 @@ class KontenerG : Kontener, IHazardNotifier
 //chłodniczy
 class KontenerC : Kontener
 {
-    public Produkt Produkt { get; set; }
+    public Produkt Produkt { get; private set; }
     public double Temperatura { get; set; }
-    public KontenerC(double wysokosc, double wagaWlasna, double glebokosc, double ladownosc, Produkt produkt, double temperatura) 
+    public KontenerC(double wysokosc, double wagaWlasna, double glebokosc, double ladownosc, double temperatura) 
         : base(wysokosc, wagaWlasna, glebokosc, ladownosc)
     {
-        this.Produkt = produkt;
         this.Temperatura = temperatura;
         this.Typ = "C";
         this.SerialNumber = "KON-" + Typ + "-" + NextContainer().ToString();
@@ -138,9 +137,17 @@ class KontenerC : Kontener
 
     public override void AddToContainer(Produkt produkt)
     {
+        if (Produkt == null)
+        {
+            Produkt = produkt;
+        }
         if (!produkt.Name.Equals(Produkt.Name, StringComparison.OrdinalIgnoreCase))
         {
             throw new InvalidOperationException("Kontener nie może przechowywać różnych typów produktów");
+        }
+        if (produkt.Temperature < Temperatura)
+        {
+            throw new InvalidOperationException("Temperatura w kontenerze jest za wysoka");
         }
         if ((MasaLadunku + produkt.Mass) <= Ladownosc)
         {
