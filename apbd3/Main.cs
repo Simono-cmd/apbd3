@@ -4,8 +4,10 @@ public class MainClass
 {
     public static void Main(String[] args)
     {
-        KontenerL kontenerL = new KontenerL(1, 1, 1, 1, "niebezpieczne");
-        kontenerL.
-        
+        Produkt produkt = new Produkt("Hel", 30, 1);
+        KontenerG kontenerG = new KontenerG(1, 1, 1, 10, 1);
+        kontenerG.AddToContainer(produkt);
+        kontenerG.EmptyContainer();
+        Console.WriteLine(kontenerG.MasaLadunku);
     }
 }

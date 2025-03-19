@@ -1,82 +1,81 @@
-﻿using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace KonteneryApp;
 
 public abstract class Kontener
 {
-    protected double masaLadunku { get; set; }
-    protected double wysokosc;
-    protected double wagaWlasna;
-    protected double glebokosc;
-    protected double ladownosc;
-    protected String serialnumber;
-    static private int counter = 1;
-    protected String typ ="";
 
-     protected Kontener(double wysokosc, double wagaWlasna, double glebokosc, double ladownosc)
-     {
-         this.wysokosc = wysokosc;
-         this.wagaWlasna = wagaWlasna;
-         this.glebokosc = glebokosc;
-         this.ladownosc = ladownosc;
-         masaLadunku = 0;
-     }
+    public double MasaLadunku { get; set; }
+    public double Wysokosc { get; set; }
+    public double WagaWlasna { get; set; }
+    public double Glebokosc { get; set; }
+    public double Ladownosc { get; set; }
+    public string SerialNumber { get; protected set; } 
+    public string Typ { get; protected set; } 
 
-     static protected int nextContainer()
+    private static int counter = 1;
+
+    protected Kontener(double wysokosc, double wagaWlasna, double glebokosc, double ladownosc)
+    {
+        this.Wysokosc = wysokosc;
+        this.WagaWlasna = wagaWlasna;
+        this.Glebokosc = glebokosc;
+        this.Ladownosc = ladownosc;
+        this.MasaLadunku = 0;
+    }
+
+    protected static int NextContainer()
     {
         return counter++;
     }
 
     public void EmptyContainer()
     {
-        masaLadunku = 0;
+        MasaLadunku = 0;
     }
 
-    public abstract void AddToContainer(String product, double mass);
-
-
+    public abstract void AddToContainer(Produkt produkt);
 }
 
-//na płyny
+// 🔹 Kontener na płyny
 class KontenerL : Kontener, IHazardNotifier
 {
-    String typladunku = "";
-    
-    public KontenerL(double wysokosc, double wagaWlasna, double glebokosc, double ladownosc, String typladunku) : base(wysokosc, wagaWlasna, glebokosc, ladownosc)
+    public string TypLadunku { get; set; }
+
+    public KontenerL(double wysokosc, double wagaWlasna, double glebokosc, double ladownosc, string typLadunku) 
+        : base(wysokosc, wagaWlasna, glebokosc, ladownosc)
     {
-        this.typladunku = typladunku;
-        typ = "L";
-        serialnumber = "KON-"+typ+"-"+nextContainer().ToString();
+        this.TypLadunku = typLadunku;
+        this.Typ = "L";
+        this.SerialNumber = "KON-" + Typ + "-" + NextContainer();
     }
 
     public void Alert()
     {
-        Console.WriteLine("Niebezpieczna sytuacja w kontenerze: "+serialnumber);
+        Console.WriteLine("Niebezpieczna sytuacja w kontenerze: " + SerialNumber);
     }
-    
-    
-    public override void AddToContainer(String product, double mass)
+
+    public override void AddToContainer(Produkt produkt)
     {
-        string pattern = "^nie";
+        string pattern = "^nie.*";
         Regex rg = new Regex(pattern);
-        if (rg.IsMatch(typladunku))
+        if (rg.IsMatch(TypLadunku))
         {
-            if ((masaLadunku+mass) < (ladownosc*0.5))
+            if ((MasaLadunku + produkt.Mass) <= (Ladownosc * 0.5))
             {
-                masaLadunku += mass;
+                MasaLadunku += produkt.Mass;
             }
             else
             {
                 Alert();
-                throw new OverfillException("Próbujesz przeładować kontener (max 90%)");
+                throw new OverfillException("Próbujesz przeładować kontener (max 50%)");
             }
         }
         else
         {
-            if ((masaLadunku+mass) < (ladownosc*0.9))
+            if ((MasaLadunku + produkt.Mass) <= (Ladownosc * 0.9))
             {
-                masaLadunku += mass;
+                MasaLadunku += produkt.Mass;
             }
             else
             {
@@ -85,46 +84,73 @@ class KontenerL : Kontener, IHazardNotifier
             }
         }
     }
-    
-    
 }
 
-//na gaz
-class KontenerG : Kontener
+// 🔹 Kontener na gaz
+class KontenerG : Kontener, IHazardNotifier
 {
-    public KontenerG(double wysokosc, double wagaWlasna, double glebokosc, double ladownosc) : base(wysokosc, wagaWlasna, glebokosc, ladownosc)
-    {
-        typ = "G";
-        serialnumber = "KON-"+typ+"-"+nextContainer().ToString();
+    public double Cisnienie { get; set; }
 
-    }
-    
-    public override void AddToContainer(String product, double mass)
+    public KontenerG(double wysokosc, double wagaWlasna, double glebokosc, double ladownosc, double cisnienie) 
+        : base(wysokosc, wagaWlasna, glebokosc, ladownosc)
     {
-       
+        this.Cisnienie = cisnienie;
+        this.Typ = "G";
+        this.SerialNumber = "KON-" + Typ + "-" + NextContainer();
     }
-    
-}
 
-//chłodniczy
-class KontenerC : Kontener
-{
-    public KontenerC(double wysokosc, double wagaWlasna, double glebokosc, double ladownosc) : base(wysokosc, wagaWlasna, glebokosc, ladownosc)
+    public void Alert()
     {
-        typ = "C";
-        serialnumber = "KON-"+typ+"-"+nextContainer().ToString();
+        Console.WriteLine("Niebezpieczna sytuacja w kontenerze: " + SerialNumber);
     }
-    
-    public override void AddToContainer(String product, double mass)
+
+    public new void EmptyContainer()
     {
-        if ((masaLadunku+mass) < ladownosc)
+        MasaLadunku *= 0.05;
+    }
+
+    public override void AddToContainer(Produkt produkt)
+    {
+        if ((MasaLadunku + produkt.Mass) <= Ladownosc)
         {
-            masaLadunku += mass;
+            MasaLadunku += produkt.Mass;
         }
         else
         {
             throw new OverfillException("Próbujesz przeładować kontener");
         }
     }
-    
 }
+
+//chłodniczy
+class KontenerC : Kontener
+{
+    public Produkt Produkt { get; set; }
+    public double Temperatura { get; set; }
+    public KontenerC(double wysokosc, double wagaWlasna, double glebokosc, double ladownosc, Produkt produkt, double temperatura) 
+        : base(wysokosc, wagaWlasna, glebokosc, ladownosc)
+    {
+        this.Produkt = produkt;
+        this.Temperatura = temperatura;
+        this.Typ = "C";
+        this.SerialNumber = "KON-" + Typ + "-" + NextContainer().ToString();
+    }
+
+    public override void AddToContainer(Produkt produkt)
+    {
+        if (!produkt.Name.Equals(Produkt.Name, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException("Kontener nie może przechowywać różnych typów produktów");
+        }
+        if ((MasaLadunku + produkt.Mass) <= Ladownosc)
+        {
+            MasaLadunku += produkt.Mass;
+        }
+        else
+        {
+            throw new OverfillException("Próbujesz przeładować kontener");
+        }
+    }
+}
+
+
