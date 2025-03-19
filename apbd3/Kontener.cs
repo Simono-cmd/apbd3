@@ -29,6 +29,10 @@ public abstract class Kontener
         return counter++;
     }
 
+    public double GetTotalWeight()
+    {
+        return WagaWlasna + MasaLadunku;
+    }
     public void EmptyContainer()
     {
         MasaLadunku = 0;
@@ -38,7 +42,7 @@ public abstract class Kontener
     
     public virtual string ToString()
     {
-        return $"SerialNumber: {SerialNumber}, Typ: {Typ}, Ladownosc: {Ladownosc} kg, Masa Ładunku: {MasaLadunku} kg";
+        return $"SerialNumber: {SerialNumber}, Typ: {Typ}, Ladownosc: {Ladownosc} kg, Masa własna: {WagaWlasna}, Masa Ładunku: {MasaLadunku} kg";
     }
 }
 
