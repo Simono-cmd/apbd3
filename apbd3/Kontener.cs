@@ -35,6 +35,11 @@ public abstract class Kontener
     }
 
     public abstract void AddToContainer(Produkt produkt);
+    
+    public virtual string ToString()
+    {
+        return $"SerialNumber: {SerialNumber}, Typ: {Typ}, Ladownosc: {Ladownosc} kg, Masa Ładunku: {MasaLadunku} kg";
+    }
 }
 
 // 🔹 Kontener na płyny
@@ -84,6 +89,11 @@ class KontenerL : Kontener, IHazardNotifier
             }
         }
     }
+
+    public override string ToString()
+    {
+        return $"{base.ToString()}, Typ Ładunku: {TypLadunku}";
+    }
 }
 
 // 🔹 Kontener na gaz
@@ -119,6 +129,11 @@ class KontenerG : Kontener, IHazardNotifier
         {
             throw new OverfillException("Próbujesz przeładować kontener");
         }
+    }
+    
+    public override string ToString()
+    {
+        return $"{base.ToString()}, Ciśnienie: {Cisnienie}";
     }
 }
 
@@ -157,6 +172,11 @@ class KontenerC : Kontener
         {
             throw new OverfillException("Próbujesz przeładować kontener");
         }
+    }
+    
+    public override string ToString()
+    {
+        return $"{base.ToString()}, Produkt: {Produkt.Name}, Temperatura: {Temperatura}";
     }
 }
 
