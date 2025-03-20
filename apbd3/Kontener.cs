@@ -35,7 +35,7 @@ public abstract class Kontener
     }
     public void EmptyContainer()
     {
-        MasaLadunku = 0;
+        this.MasaLadunku = 0;
     }
 
     public abstract void AddToContainer(Produkt produkt);
@@ -120,7 +120,7 @@ class KontenerG : Kontener, IHazardNotifier
 
     public new void EmptyContainer()
     {
-        MasaLadunku *= 0.05;
+        this.MasaLadunku *= 0.05;
     }
 
     public override void AddToContainer(Produkt produkt)
